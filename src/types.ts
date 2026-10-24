@@ -8,9 +8,8 @@ export interface Category {
   tintDark: string;
 }
 
-export interface Question {
-  id: string;
-  categoryId: string;
+export interface DigQuestion {
+  depth: 1 | 2 | 3;
   emoji: string;
   question: string;
   type: QuestionType;
@@ -20,7 +19,19 @@ export interface Question {
   funFact: string;
 }
 
-export interface Badge {
+/** One concrete subject (e.g. "기린") to dig into — the unit of depth. */
+export interface DigSite {
+  id: string;
+  categoryId: string;
+  name: string;
+  emoji: string;
+  /** Exactly 3, ordered shallow -> deep. */
+  questions: DigQuestion[];
+  /** Suggested next sites to keep digging into once this one is done. */
+  nextSiteIds: string[];
+}
+
+export interface CategoryBadge {
   categoryId: string;
   earnedAt: number;
 }

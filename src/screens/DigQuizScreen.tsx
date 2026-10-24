@@ -1,71 +1,77 @@
 import { useState } from 'react';
-import { getCategory } from '../data/categories';
-import { getQuestionsForCategory } from '../data/questions';
+import { getSite } from '../data/sites';
 import { useGameStore } from '../store/useGameStore';
 import Mole, { type MoleMood } from '../components/Mole';
 import TopBar from '../components/TopBar';
+import DepthBadge from '../components/DepthBadge';
 
-export default function QuizScreen({
-  categoryId,
-  onFinish,
+export default function DigQuizScreen({
+  siteId,
+  chain,
+  onSiteComplete,
   onHome,
 }: {
-  categoryId: string;
-  onFinish: (categoryId: string) => void;
+  siteId: string;
+  chain: string[];
+  onSiteComplete: (siteId: string, chain: string[]) => void;
   onHome: () => void;
 }) {
-  const category = getCategory(categoryId);
-  const questions = getQuestionsForCategory(categoryId);
+  const site = getSite(siteId);
   const answerQuestion = useGameStore((s) => s.answerQuestion);
-  const completeCategory = useGameStore((s) => s.completeCategory);
+  const completeSite = useGameStore((s) => s.completeSite);
 
-  const [index, setIndex] = useState(0);
+  const [qIndex, setQIndex] = useState(0);
   const [selected, setSelected] = useState<number | null>(null);
 
-  const question = questions[index];
+  if (!site) return null;
+
+  const question = site.questions[qIndex];
   const isAnswered = selected !== null;
   const isCorrect = isAnswered && selected === question.correctIndex;
   const moleMood: MoleMood = !isAnswered ? 'idle' : isCorrect ? 'excited' : 'oops';
+  const absoluteDepth = chain.length * 3 + question.depth;
+  const isOx = question.type === 'ox';
 
   function handleSelect(choiceIndex: number) {
     if (isAnswered) return;
     setSelected(choiceIndex);
-    answerQuestion(question.id, choiceIndex === question.correctIndex);
+    answerQuestion(site!.id, question.depth, choiceIndex === question.correctIndex);
   }
 
   function handleNext() {
-    if (index + 1 < questions.length) {
-      setIndex(index + 1);
+    if (qIndex + 1 < site!.questions.length) {
+      setQIndex(qIndex + 1);
       setSelected(null);
     } else {
-      completeCategory(categoryId);
-      onFinish(categoryId);
+      completeSite(site!.id, site!.categoryId);
+      onSiteComplete(site!.id, [...chain, site!.id]);
     }
   }
-
-  const isOx = question.type === 'ox';
 
   return (
     <div className="min-h-screen bg-[var(--bg)]">
       <TopBar onHome={onHome} />
 
       <div className="mx-auto max-w-xl px-4 py-5 sm:px-6 sm:py-8">
-        {/* progress dots */}
-        <div className="mb-5 flex items-center justify-center gap-2">
-          <span className="text-2xl">{category?.emoji}</span>
+        <div className="mb-5 flex flex-col items-center gap-2.5">
+          <DepthBadge depth={absoluteDepth} />
+          <div className="flex items-center gap-2 text-sm font-bold text-[var(--text-muted)]">
+            <span className="text-xl">{site.emoji}</span>
+            {site.name} 파고드는 중 · {qIndex + 1}/{site.questions.length}
+          </div>
           <div className="flex gap-1.5">
-            {questions.map((q, i) => (
+            {site.questions.map((q, i) => (
               <span
-                key={q.id}
+                key={q.depth}
                 className={`h-2.5 w-7 rounded-full transition-colors ${
-                  i < index ? 'bg-[var(--accent)]' : i === index ? 'bg-[var(--border-strong)]' : 'bg-[var(--border)]'
+                  i < qIndex ? 'bg-[var(--accent)]' : i === qIndex ? 'bg-[var(--border-strong)]' : 'bg-[var(--border)]'
                 }`}
               />
             ))}
           </div>
         </div>
 
-        <div key={question.id} className="animate-pop-in rounded-[32px] border-4 border-[var(--border)] bg-[var(--surface)] p-6 text-center sm:p-8">
+        <div key={question.depth} className="animate-pop-in rounded-[32px] border-4 border-[var(--border)] bg-[var(--surface)] p-6 text-center sm:p-8">
           <div className="text-7xl sm:text-8xl">{question.emoji}</div>
           <h2 className="mt-4 text-xl font-black leading-snug text-[var(--text)] sm:text-2xl">{question.question}</h2>
 
@@ -98,7 +104,6 @@ export default function QuizScreen({
           </div>
         </div>
 
-        {/* mole feedback */}
         <div className="mt-5 flex items-start gap-3">
           <Mole mood={moleMood} className={`h-16 w-16 shrink-0 sm:h-20 sm:w-20 ${!isAnswered ? 'animate-wiggle' : 'animate-pop-in'}`} />
           <div className="relative flex-1 rounded-2xl rounded-tl-none border-3 border-[var(--border)] bg-[var(--surface)] px-4 py-3 text-sm font-bold text-[var(--text)] sm:text-base">
@@ -114,7 +119,7 @@ export default function QuizScreen({
             onClick={handleNext}
             className="mt-5 w-full animate-pop-in rounded-full bg-[var(--accent)] py-4 text-lg font-black text-white shadow-lg transition hover:bg-[var(--accent-hover)] active:scale-95"
           >
-            {index + 1 < questions.length ? '다음 문제 →' : '결과 보러 가기 🎉'}
+            {qIndex + 1 < site.questions.length ? '한 층 더 파고들기 ⛏️' : '다 팠어요! 🎉'}
           </button>
         )}
       </div>

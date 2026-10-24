@@ -1,9 +1,9 @@
-import { useMemo } from 'react';
-import { getCategory } from '../data/categories';
-import { getQuestionsForCategory } from '../data/questions';
+import { useEffect, useMemo } from 'react';
+import { getSite } from '../data/sites';
 import { useGameStore } from '../store/useGameStore';
 import Mole from '../components/Mole';
 import TopBar from '../components/TopBar';
+import DepthBadge from '../components/DepthBadge';
 
 const CONFETTI_COLORS = ['#ffc93c', '#46b36a', '#ef6a5e', '#5e9bd9', '#c77dd1'];
 
@@ -47,44 +47,66 @@ function Confetti() {
 }
 
 export default function CelebrationScreen({
-  categoryId,
+  chain,
   onHome,
   onCollection,
 }: {
-  categoryId: string;
+  chain: string[];
   onHome: () => void;
   onCollection: () => void;
 }) {
-  const category = getCategory(categoryId);
-  const questions = getQuestionsForCategory(categoryId);
-  const answered = useGameStore((s) => s.answered);
+  const stars = useGameStore((s) => s.stars);
+  const bestChainDepth = useGameStore((s) => s.bestChainDepth);
+  const recordChain = useGameStore((s) => s.recordChain);
 
-  const correctCount = questions.filter((q) => answered[q.id]).length;
+  const depth = chain.length * 3;
+  const isNewRecord = depth > 0 && depth >= bestChainDepth;
+  const sites = chain.map((id) => getSite(id)).filter((s) => !!s);
+
+  useEffect(() => {
+    recordChain(depth);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   return (
     <div className="relative min-h-screen overflow-hidden bg-[var(--bg)]">
       <Confetti />
       <TopBar onHome={onHome} />
 
-      <div className="relative mx-auto flex max-w-lg flex-col items-center px-4 py-10 text-center sm:py-16">
+      <div className="relative mx-auto flex max-w-lg flex-col items-center px-4 py-10 text-center sm:py-14">
         <span className="flex h-28 w-28 items-center justify-center rounded-full bg-[var(--accent-soft)] text-6xl sm:h-32 sm:w-32 sm:text-7xl">
-          🏅
+          {isNewRecord && depth > 0 ? '🏆' : '🎉'}
         </span>
         <h1 className="mt-5 text-2xl font-black text-[var(--text)] sm:text-3xl">
-          {category?.emoji} {category?.name} 뱃지 획득!
+          {isNewRecord && depth > 0 ? '최고 기록 경신!' : '오늘도 잘 팠어요!'}
         </h1>
+        <div className="mt-3">
+          <DepthBadge depth={depth} />
+        </div>
         <Mole mood="excited" className="mt-4 h-24 w-24 sm:h-28 sm:w-28" />
-        <p className="mt-3 text-lg font-bold text-[var(--text)]">
-          {questions.length}문제 중 <span className="text-[var(--accent-soft-text)]">{correctCount}개</span> 맞혔어요!
+
+        {sites.length > 0 && (
+          <div className="mt-5 flex flex-wrap items-center justify-center gap-2">
+            {sites.map((s, i) => (
+              <span key={s!.id} className="flex items-center gap-1 text-sm font-bold text-[var(--text-muted)]">
+                {i > 0 && <span className="text-[var(--text-faint)]">→</span>}
+                <span className="text-xl">{s!.emoji}</span>
+                {s!.name}
+              </span>
+            ))}
+          </div>
+        )}
+
+        <p className="mt-4 text-lg font-bold text-[var(--text)]">
+          별 <span className="text-[var(--accent-soft-text)]">⭐ {stars}</span>개를 모았어요!
         </p>
-        <p className="mt-1 text-sm font-semibold text-[var(--text-muted)]">정말 잘했어요, 최고예요!</p>
 
         <div className="mt-8 flex w-full flex-col gap-3 sm:w-80">
           <button
             onClick={onHome}
             className="w-full rounded-full bg-[var(--accent)] py-4 text-lg font-black text-white shadow-lg transition hover:bg-[var(--accent-hover)] active:scale-95"
           >
-            다른 주제 하러 가기
+            또 다른 주제 파러 가기
           </button>
           <button
             onClick={onCollection}

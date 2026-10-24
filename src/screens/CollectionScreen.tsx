@@ -1,18 +1,17 @@
 import { CATEGORIES } from '../data/categories';
-import { getQuestionsForCategory } from '../data/questions';
+import { DIG_SITES } from '../data/sites';
 import { useGameStore } from '../store/useGameStore';
 import Mole from '../components/Mole';
 import TopBar from '../components/TopBar';
 
 export default function CollectionScreen({ onHome }: { onHome: () => void }) {
   const stars = useGameStore((s) => s.stars);
-  const badges = useGameStore((s) => s.badges);
-  const answered = useGameStore((s) => s.answered);
+  const categoryBadges = useGameStore((s) => s.categoryBadges);
+  const sitesCompleted = useGameStore((s) => s.sitesCompleted);
+  const bestChainDepth = useGameStore((s) => s.bestChainDepth);
   const resetAll = useGameStore((s) => s.resetAll);
 
-  const earnedIds = new Set(badges.map((b) => b.categoryId));
-  const totalQuestions = CATEGORIES.reduce((sum, c) => sum + getQuestionsForCategory(c.id).length, 0);
-  const totalCorrect = Object.values(answered).filter(Boolean).length;
+  const earnedIds = new Set(categoryBadges.map((b) => b.categoryId));
 
   function handleReset() {
     if (window.confirm('정말 처음부터 다시 시작할까요? 모은 별과 뱃지가 모두 사라져요.')) {
@@ -31,20 +30,24 @@ export default function CollectionScreen({ onHome }: { onHome: () => void }) {
           <p className="text-sm font-semibold text-[var(--text-muted)]">지금까지 모은 별과 뱃지를 확인해봐요!</p>
         </div>
 
-        <div className="mt-6 grid grid-cols-3 gap-3">
+        <div className="mt-6 grid grid-cols-2 gap-3 sm:grid-cols-4">
           <div className="rounded-2xl border-4 border-[var(--border)] bg-[var(--surface)] px-3 py-4 text-center">
             <div className="text-3xl font-black tabular-nums text-[var(--text)]">⭐ {stars}</div>
             <div className="mt-1 text-xs font-bold text-[var(--text-faint)]">모은 별</div>
           </div>
           <div className="rounded-2xl border-4 border-[var(--border)] bg-[var(--surface)] px-3 py-4 text-center">
-            <div className="text-3xl font-black tabular-nums text-[var(--text)]">🏅 {badges.length}</div>
+            <div className="text-3xl font-black tabular-nums text-[var(--text)]">🏅 {categoryBadges.length}</div>
             <div className="mt-1 text-xs font-bold text-[var(--text-faint)]">모은 뱃지</div>
           </div>
           <div className="rounded-2xl border-4 border-[var(--border)] bg-[var(--surface)] px-3 py-4 text-center">
             <div className="text-3xl font-black tabular-nums text-[var(--text)]">
-              {totalCorrect}/{totalQuestions}
+              {sitesCompleted.length}/{DIG_SITES.length}
             </div>
-            <div className="mt-1 text-xs font-bold text-[var(--text-faint)]">맞힌 문제</div>
+            <div className="mt-1 text-xs font-bold text-[var(--text-faint)]">파본 곳</div>
+          </div>
+          <div className="rounded-2xl border-4 border-[var(--border)] bg-[var(--surface)] px-3 py-4 text-center">
+            <div className="text-3xl font-black tabular-nums text-[var(--text)]">⛏️ {bestChainDepth}</div>
+            <div className="mt-1 text-xs font-bold text-[var(--text-faint)]">최고 깊이</div>
           </div>
         </div>
 

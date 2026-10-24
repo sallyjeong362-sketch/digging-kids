@@ -1,48 +1,73 @@
 import { useState } from 'react';
 import HomeScreen from './screens/HomeScreen';
-import QuizScreen from './screens/QuizScreen';
+import SitePickerScreen from './screens/SitePickerScreen';
+import DigQuizScreen from './screens/DigQuizScreen';
+import SiteCompleteScreen from './screens/SiteCompleteScreen';
 import CelebrationScreen from './screens/CelebrationScreen';
 import CollectionScreen from './screens/CollectionScreen';
 
 type View =
   | { name: 'home' }
-  | { name: 'quiz'; categoryId: string }
-  | { name: 'celebrate'; categoryId: string }
+  | { name: 'sitePicker'; categoryId: string }
+  | { name: 'quiz'; siteId: string; chain: string[] }
+  | { name: 'siteComplete'; siteId: string; chain: string[] }
+  | { name: 'celebrate'; chain: string[] }
   | { name: 'collection' };
 
 function App() {
   const [view, setView] = useState<View>({ name: 'home' });
 
-  if (view.name === 'home') {
-    return (
-      <HomeScreen
-        onPickCategory={(categoryId) => setView({ name: 'quiz', categoryId })}
-        onCollection={() => setView({ name: 'collection' })}
-      />
-    );
-  }
+  switch (view.name) {
+    case 'home':
+      return (
+        <HomeScreen
+          onPickCategory={(categoryId) => setView({ name: 'sitePicker', categoryId })}
+          onCollection={() => setView({ name: 'collection' })}
+        />
+      );
 
-  if (view.name === 'quiz') {
-    return (
-      <QuizScreen
-        categoryId={view.categoryId}
-        onFinish={(categoryId) => setView({ name: 'celebrate', categoryId })}
-        onHome={() => setView({ name: 'home' })}
-      />
-    );
-  }
+    case 'sitePicker':
+      return (
+        <SitePickerScreen
+          categoryId={view.categoryId}
+          onPickSite={(siteId) => setView({ name: 'quiz', siteId, chain: [] })}
+          onHome={() => setView({ name: 'home' })}
+        />
+      );
 
-  if (view.name === 'celebrate') {
-    return (
-      <CelebrationScreen
-        categoryId={view.categoryId}
-        onHome={() => setView({ name: 'home' })}
-        onCollection={() => setView({ name: 'collection' })}
-      />
-    );
-  }
+    case 'quiz':
+      return (
+        <DigQuizScreen
+          siteId={view.siteId}
+          chain={view.chain}
+          onSiteComplete={(siteId, chain) => setView({ name: 'siteComplete', siteId, chain })}
+          onHome={() => setView({ name: 'home' })}
+        />
+      );
 
-  return <CollectionScreen onHome={() => setView({ name: 'home' })} />;
+    case 'siteComplete':
+      return (
+        <SiteCompleteScreen
+          siteId={view.siteId}
+          chain={view.chain}
+          onDigDeeper={(nextSiteId) => setView({ name: 'quiz', siteId: nextSiteId, chain: view.chain })}
+          onStop={() => setView({ name: 'celebrate', chain: view.chain })}
+          onHome={() => setView({ name: 'home' })}
+        />
+      );
+
+    case 'celebrate':
+      return (
+        <CelebrationScreen
+          chain={view.chain}
+          onHome={() => setView({ name: 'home' })}
+          onCollection={() => setView({ name: 'collection' })}
+        />
+      );
+
+    case 'collection':
+      return <CollectionScreen onHome={() => setView({ name: 'home' })} />;
+  }
 }
 
 export default App;
