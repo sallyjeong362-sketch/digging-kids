@@ -1,0 +1,99 @@
+import { useMemo } from 'react';
+import { getCategory } from '../data/categories';
+import { getQuestionsForCategory } from '../data/questions';
+import { useGameStore } from '../store/useGameStore';
+import Mole from '../components/Mole';
+import TopBar from '../components/TopBar';
+
+const CONFETTI_COLORS = ['#ffc93c', '#46b36a', '#ef6a5e', '#5e9bd9', '#c77dd1'];
+
+function Confetti() {
+  const pieces = useMemo(
+    () =>
+      Array.from({ length: 26 }, (_, i) => ({
+        left: Math.random() * 100,
+        delay: Math.random() * 0.6,
+        duration: 1.6 + Math.random() * 1.2,
+        color: CONFETTI_COLORS[i % CONFETTI_COLORS.length],
+        size: 8 + Math.random() * 8,
+        rotate: Math.random() * 360,
+      })),
+    [],
+  );
+  return (
+    <div className="pointer-events-none absolute inset-0 overflow-hidden">
+      {pieces.map((p, i) => (
+        <span
+          key={i}
+          className="absolute top-0 rounded-sm"
+          style={{
+            left: `${p.left}%`,
+            width: p.size,
+            height: p.size * 0.6,
+            background: p.color,
+            transform: `rotate(${p.rotate}deg)`,
+            animation: `confetti-fall ${p.duration}s ${p.delay}s ease-in forwards`,
+          }}
+        />
+      ))}
+      <style>{`
+        @keyframes confetti-fall {
+          0% { transform: translateY(-10px) rotate(0deg); opacity: 1; }
+          100% { transform: translateY(560px) rotate(260deg); opacity: 0; }
+        }
+      `}</style>
+    </div>
+  );
+}
+
+export default function CelebrationScreen({
+  categoryId,
+  onHome,
+  onCollection,
+}: {
+  categoryId: string;
+  onHome: () => void;
+  onCollection: () => void;
+}) {
+  const category = getCategory(categoryId);
+  const questions = getQuestionsForCategory(categoryId);
+  const answered = useGameStore((s) => s.answered);
+
+  const correctCount = questions.filter((q) => answered[q.id]).length;
+
+  return (
+    <div className="relative min-h-screen overflow-hidden bg-[var(--bg)]">
+      <Confetti />
+      <TopBar onHome={onHome} />
+
+      <div className="relative mx-auto flex max-w-lg flex-col items-center px-4 py-10 text-center sm:py-16">
+        <span className="flex h-28 w-28 items-center justify-center rounded-full bg-[var(--accent-soft)] text-6xl sm:h-32 sm:w-32 sm:text-7xl">
+          🏅
+        </span>
+        <h1 className="mt-5 text-2xl font-black text-[var(--text)] sm:text-3xl">
+          {category?.emoji} {category?.name} 뱃지 획득!
+        </h1>
+        <Mole mood="excited" className="mt-4 h-24 w-24 sm:h-28 sm:w-28" />
+        <p className="mt-3 text-lg font-bold text-[var(--text)]">
+          {questions.length}문제 중 <span className="text-[var(--accent-soft-text)]">{correctCount}개</span> 맞혔어요!
+        </p>
+        <p className="mt-1 text-sm font-semibold text-[var(--text-muted)]">정말 잘했어요, 최고예요!</p>
+
+        <div className="mt-8 flex w-full flex-col gap-3 sm:w-80">
+          <button
+            onClick={onHome}
+            className="w-full rounded-full bg-[var(--accent)] py-4 text-lg font-black text-white shadow-lg transition hover:bg-[var(--accent-hover)] active:scale-95"
+          >
+            다른 주제 하러 가기
+          </button>
+          <button
+            onClick={onCollection}
+            className="w-full rounded-full border-4 border-[var(--border-strong)] bg-[var(--surface)] py-3.5 text-base font-black text-[var(--text)] transition hover:bg-[var(--surface-2)] active:scale-95"
+          >
+            내 뱃지 모음 보기 🏅
+          </button>
+        </div>
+      </div>
+    </div>
+  );
+}

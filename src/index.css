@@ -1,0 +1,185 @@
+@import "tailwindcss";
+
+:root {
+  --font-sans: 'PretendardVariable', Pretendard, -apple-system, BlinkMacSystemFont, 'Malgun Gothic', sans-serif;
+
+  --bg: #fff8ec;
+  --surface: #ffffff;
+  --surface-2: #fff1d6;
+  --border: #ffe2a8;
+  --border-strong: #ffcf74;
+  --text: #3a2a18;
+  --text-muted: #8a7256;
+  --text-faint: #b9a483;
+
+  --accent: #46b36a;
+  --accent-hover: #389457;
+  --accent-soft: #e3f7e9;
+  --accent-soft-text: #1f7a42;
+
+  --correct: #46b36a;
+  --correct-hover: #389457;
+  --wrong: #ef6a5e;
+  --wrong-hover: #d9493d;
+  --star: #ffc93c;
+
+  --ink: #3a2a18;
+  --ink-hover: #27190d;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --bg: #1c140c;
+    --surface: #2a2015;
+    --surface-2: #34281a;
+    --border: #4a3a24;
+    --border-strong: #5e4a2e;
+    --text: #fbead0;
+    --text-muted: #c9ad87;
+    --text-faint: #8a7256;
+
+    --accent: #5ed184;
+    --accent-hover: #7fe0a0;
+    --accent-soft: #1d3326;
+    --accent-soft-text: #8fe3ab;
+
+    --correct: #5ed184;
+    --correct-hover: #7fe0a0;
+    --wrong: #ff8a7d;
+    --wrong-hover: #ffa89f;
+    --star: #ffd966;
+
+    --ink: #fbead0;
+    --ink-hover: #ffffff;
+  }
+}
+
+:root[data-theme='dark'] {
+  --bg: #1c140c;
+  --surface: #2a2015;
+  --surface-2: #34281a;
+  --border: #4a3a24;
+  --border-strong: #5e4a2e;
+  --text: #fbead0;
+  --text-muted: #c9ad87;
+  --text-faint: #8a7256;
+
+  --accent: #5ed184;
+  --accent-hover: #7fe0a0;
+  --accent-soft: #1d3326;
+  --accent-soft-text: #8fe3ab;
+
+  --correct: #5ed184;
+  --correct-hover: #7fe0a0;
+  --wrong: #ff8a7d;
+  --wrong-hover: #ffa89f;
+  --star: #ffd966;
+
+  --ink: #fbead0;
+  --ink-hover: #ffffff;
+}
+
+:root[data-theme='light'] {
+  --bg: #fff8ec;
+  --surface: #ffffff;
+  --surface-2: #fff1d6;
+  --border: #ffe2a8;
+  --border-strong: #ffcf74;
+  --text: #3a2a18;
+  --text-muted: #8a7256;
+  --text-faint: #b9a483;
+
+  --accent: #46b36a;
+  --accent-hover: #389457;
+  --accent-soft: #e3f7e9;
+  --accent-soft-text: #1f7a42;
+
+  --correct: #46b36a;
+  --correct-hover: #389457;
+  --wrong: #ef6a5e;
+  --wrong-hover: #d9493d;
+  --star: #ffc93c;
+
+  --ink: #3a2a18;
+  --ink-hover: #27190d;
+}
+
+html {
+  scroll-behavior: smooth;
+  color-scheme: light dark;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto;
+  }
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}
+
+body {
+  margin: 0;
+  background: var(--bg);
+  color: var(--text);
+  font-family: var(--font-sans);
+  -webkit-font-smoothing: antialiased;
+}
+
+@keyframes pop-in {
+  0% { transform: scale(0.6); opacity: 0; }
+  60% { transform: scale(1.08); opacity: 1; }
+  100% { transform: scale(1); opacity: 1; }
+}
+.animate-pop-in {
+  animation: pop-in 0.35s cubic-bezier(0.34, 1.56, 0.64, 1) both;
+}
+
+@keyframes shake-x {
+  0%, 100% { transform: translateX(0); }
+  20% { transform: translateX(-10px); }
+  40% { transform: translateX(8px); }
+  60% { transform: translateX(-6px); }
+  80% { transform: translateX(4px); }
+}
+.animate-shake {
+  animation: shake-x 0.45s ease-in-out;
+}
+
+@keyframes float-up {
+  0% { transform: translateY(0) scale(0.6); opacity: 0; }
+  20% { opacity: 1; }
+  100% { transform: translateY(-60px) scale(1.1); opacity: 0; }
+}
+.animate-float-up {
+  animation: float-up 1.1s ease-out forwards;
+}
+
+@keyframes wiggle {
+  0%, 100% { transform: rotate(0deg); }
+  25% { transform: rotate(-4deg); }
+  75% { transform: rotate(4deg); }
+}
+.animate-wiggle {
+  animation: wiggle 1.6s ease-in-out infinite;
+}
+
+/* Per-category illustrated tile background */
+.cat-art {
+  background: var(--cat-tint);
+}
+@media (prefers-color-scheme: dark) {
+  .cat-art {
+    background: var(--cat-tint-dark);
+  }
+}
+:root[data-theme='dark'] .cat-art {
+  background: var(--cat-tint-dark);
+}
+:root[data-theme='light'] .cat-art {
+  background: var(--cat-tint);
+}
